@@ -102,8 +102,6 @@ pool.on('connect', () => {
     });
 }
 
-   
-
 /**
  * Drop Tables
  */
