@@ -1,16 +1,16 @@
-import pool from '../database/dbconnect'
+import pool from './dbconnect';
 
 /**
  * Create Tables
  */
-  async function createTables() {
- const queryText =`
+async function createTables() {
+  const queryText = `
  CREATE TABLE IF NOT EXISTS
        users(
          userId INTEGER PRIMARY KEY,
          firstName VARCHAR(128) NOT NULL,
          lastName VARCHAR(128) NOT NULL,
-         email VARCHAR(128) NOT NULL,
+         email VARCHAR(128) UNIQUE NOT NULL,
          password VARCHAR(128)  NOT NULL,
          gender VARCHAR(128)  NOT NULL,
          jobRole VARCHAR(128)  NOT NULL,
@@ -78,11 +78,10 @@ import pool from '../database/dbconnect'
        sharedBy INTEGER NOT NULL,
        sharedWith INTEGER NOT NULL,
        createdOn TIMESTAMP
-       );`
+       );`;
 
-    pool.query(queryText)
-    .then((res) => {
-      console.log(res);
+  pool.query(queryText)
+    .then(() => {
       pool.end();
     })
     .catch((err) => {
@@ -95,9 +94,17 @@ import pool from '../database/dbconnect'
  * Drop Tables
  */
 const dropTables = (tableName) => {
-  const queryText = 'DROP TABLE IF EXISTS '+tableName;
- 
-}
+  const queryText = `DROP TABLE IF EXISTS ${tableName}`;
+
+  pool.query(queryText)
+    .then(() => {
+      pool.end();
+    })
+    .catch((err) => {
+      console.log(err);
+      pool.end();
+    });
+};
 pool.on('remove', () => {
   console.log('client removed');
   process.exit(0);
@@ -105,7 +112,7 @@ pool.on('remove', () => {
 
 module.exports = {
   createTables,
-  dropTables
+  dropTables,
 };
 
 require('make-runnable');
