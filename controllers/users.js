@@ -2,6 +2,7 @@
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
 const moment = require('moment');
+const uuidv1 = require('uuid/v1');
 
 dotenv.config();
 
@@ -15,25 +16,28 @@ exports.createUser = (req, res) => {
   } = req.body;
 
   const createdOn = moment();
+  const userId = uuidv1();
 
-  pool.connect((err, client, done) => {
-    const query = 'INSERT INTO users(firstName,lastName,email, gender,password,jobRole, department,address,createdOn) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *';
+  pool.connect((err, client) => {
+    const query = 'INSERT INTO users(userId, firstName,lastName,email, gender,password,jobRole, department,address,createdOn) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *';
     // eslint-disable-next-line max-len
-    const values = [firstName, lastName, email, gender, password, jobRole, department, address, createdOn];
+    const values = [userId, firstName, lastName, email, gender, password, jobRole, department, address, createdOn];
 
     client.query(query, values, (error, result) => {
-      done();
+      // done();
       if (error) {
+        console.log(error.stack);
         res.status(400).json({ error });
+      } else {
+        res.status(202).send({
+          status: 'sUccess',
+          data: {
+            message: 'User account succesfully created',
+            token: '',
+            userId: result.rows[0].userId,
+          },
+        });
       }
-      res.status(202).send({
-        status: 'sUccess',
-        data: {
-          message: 'User account succesfully created',
-          token: '',
-          userId: result.rows[0].userId,
-        },
-      });
     });
   });
 };

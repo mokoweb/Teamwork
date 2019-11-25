@@ -7,7 +7,7 @@ async function createTables() {
   const queryText = `
  CREATE TABLE IF NOT EXISTS
        users(
-         userId INTEGER PRIMARY KEY,
+         userId UUID PRIMARY KEY,
          firstName VARCHAR(128) NOT NULL,
          lastName VARCHAR(128) NOT NULL,
          email VARCHAR(128) UNIQUE NOT NULL,
@@ -23,9 +23,9 @@ async function createTables() {
   
        CREATE TABLE IF NOT EXISTS
          gifs(
-           gifId INTEGER PRIMARY KEY,
+           gifId UUID PRIMARY KEY,
            title VARCHAR(128) NOT NULL,
-           postedBy INTEGER NOT NULL,
+           postedBy UUID NOT NULL,
            imageUrl VARCHAR(255) NOT NULL,
            inAppropriate bool DEFAULT false,
            createdOn TIMESTAMP
@@ -34,9 +34,9 @@ async function createTables() {
  
        CREATE TABLE IF NOT EXISTS
          articles(
-           articleId INTEGER PRIMARY KEY,
+           articleId UUID PRIMARY KEY,
            title VARCHAR(128) NOT NULL,
-           postedBy INTEGER NOT NULL,
+           postedBy UUID NOT NULL,
            article TEXT NOT NULL,
            inAppropriate bool DEFAULT false,
            createdOn TIMESTAMP
@@ -45,9 +45,9 @@ async function createTables() {
  
        CREATE TABLE IF NOT EXISTS
        commentsPost(
-         commentId INTEGER PRIMARY KEY,
-         articleId INTEGER  NOT NULL,
-         postedBy INTEGER NOT NULL,
+         commentId UUID PRIMARY KEY,
+         articleId UUID  NOT NULL,
+         postedBy UUID NOT NULL,
          comments TEXT NOT NULL,
          inAppropriate bool DEFAULT false,
          createdOn TIMESTAMP
@@ -56,9 +56,9 @@ async function createTables() {
  
        CREATE TABLE IF NOT EXISTS
        commentsGif(
-         id INTEGER PRIMARY KEY,
-         gifId INTEGER  NOT NULL,
-         postedBy INTEGER NOT NULL,
+         id UUID PRIMARY KEY,
+         gifId UUID  NOT NULL,
+         postedBy UUID NOT NULL,
          comments TEXT NOT NULL,
          inAppropriate bool DEFAULT false,
          createdOn TIMESTAMP
@@ -66,17 +66,26 @@ async function createTables() {
  
        CREATE TABLE IF NOT EXISTS
          category(
-         categoryId INTEGER PRIMARY KEY,
+         categoryId UUID PRIMARY KEY,
          title VARCHAR(255) NOT NULL,
          createdOn TIMESTAMP
          );
    
        CREATE TABLE IF NOT EXISTS
        articlesShared(
-       articlesSharedId INTEGER PRIMARY KEY,
-       articleId INTEGER  NOT NULL,
-       sharedBy INTEGER NOT NULL,
-       sharedWith INTEGER NOT NULL,
+       articlesSharedId UUID PRIMARY KEY,
+       articleId UUID  NOT NULL,
+       sharedBy UUID NOT NULL,
+       sharedWith UUID NOT NULL,
+       createdOn TIMESTAMP
+       );
+       
+       CREATE TABLE IF NOT EXISTS
+       gifsShared(
+       articlesSharedId UUID PRIMARY KEY,
+       articleId UUID  NOT NULL,
+       sharedBy UUID NOT NULL,
+       sharedWith UUID NOT NULL,
        createdOn TIMESTAMP
        );`;
 
@@ -93,8 +102,15 @@ async function createTables() {
 /**
  * Drop Tables
  */
-const dropTables = (tableName) => {
-  const queryText = `DROP TABLE IF EXISTS ${tableName}`;
+const dropTables = () => {
+  const queryText = `DROP TABLE IF EXISTS articlesShared;
+  DROP TABLE IF EXISTS users;
+  DROP TABLE IF EXISTS articles;
+  DROP TABLE IF EXISTS gifsShared;
+  DROP TABLE IF EXISTS commentsPost;
+  DROP TABLE IF EXISTS commentsGif;
+  DROP TABLE IF EXISTS category;
+  DROP TABLE IF EXISTS gifshared;`;
 
   pool.query(queryText)
     .then(() => {
